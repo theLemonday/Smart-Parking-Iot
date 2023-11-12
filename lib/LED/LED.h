@@ -11,7 +11,6 @@ class LED {
 
     LED(uint8_t pin);
 
-    void setup();
     void on();
     void off();
     State getCurrentState();

@@ -1,5 +1,4 @@
 #include "Rfid.h"
-#include <Constant.h>
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 
@@ -19,8 +18,6 @@ String readRFIDCardIfExisted() {
         content.concat(String(mfrc522.uid.uidByte[i], HEX));
     }
     content.toUpperCase();
-    // DPRINTF("UID tag : ");
-    // DPRINTLN(content);
 
     return content;
 }

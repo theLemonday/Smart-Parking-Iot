@@ -1,10 +1,10 @@
 #include "wifi.h"
-#include "Constant.h"
+#include "Utils.h"
 #include <Secret.h>
 
 IPAddress SetupWifi() {
     delay(10);
-    // We start by connecting to a WiFi network
+
     DPRINTF("Connecting to: ");
     DPRINTLN(SSID);
 

@@ -37,7 +37,7 @@ class CarDetectionSensor {
 
     CarDetectionSensor(const uint8_t digitalPin);
 
-    State NewCarDetected();
+    State IsNewCarDetected();
 
    private:
     const uint8_t _digitalPin;

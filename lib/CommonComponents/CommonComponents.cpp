@@ -20,11 +20,11 @@ void SetupCommonComponents() {
     closeGate();
 }
 
+StaticJsonDocument<JSON_OBJECT_SIZE(1)> barrierControlMsg;
 void barrierHandler(byte* payload, unsigned int length) {
-    StaticJsonDocument<JSON_OBJECT_SIZE(1)> data;
-    DeserializationData2Json(data, payload, length);
+    DeserializationData2Json(barrierControlMsg, payload, length);
 
-    const char* status = data["status"];
+    const char* status = barrierControlMsg["action"];
     if (strcmp(status, "open") == 0) {
         openGate();
         return;

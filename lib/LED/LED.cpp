@@ -9,8 +9,6 @@ LED::LED(uint8_t pin) : _pin(pin) {
     off();
 }
 
-void LED::setup() {}
-
 void LED::on() {
 #if defined(ESP8266)
     if (_pin == LED_BUILTIN) {

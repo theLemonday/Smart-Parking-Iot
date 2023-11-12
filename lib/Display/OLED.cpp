@@ -1,5 +1,4 @@
 #include <OLED.h>
-#include <Constant.h>
 #include <Utils.h>
 #include <ArduinoJson.h>
 
@@ -15,12 +14,16 @@ void SetupDisplay() {
 }
 
 void DisplaySetText(String &&text) {
-    DPRINT(F("Set current text: "));
+    DPRINTF("Display set current text: ");
     DPRINTLN(text);
+
     currentText = text;
 }
 
 void DisplaySetMode(Mode mode) {
+    DPRINTF("Display set current mode: ");
+    DPRINTLN(mode == QRCode ? "qr" : "text");
+
     currentMode = mode;
     if (currentMode != mode) display.resetDisplay();
 

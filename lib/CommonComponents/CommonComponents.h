@@ -1,8 +1,7 @@
 #if !defined(COMMON_COMPONENTS_H)
 #define COMMON_COMPONENTS_H
 
-#include <Constant.h>
-#include <ArduinoJson.h>
+#include <Utils.h>
 
 void SetupCommonComponents();
 

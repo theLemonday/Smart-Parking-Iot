@@ -4,7 +4,6 @@
 #include <Arduino.h>
 #include <qrcodeoled.h>
 #include <SSD1306Wire.h>
-#include <Constant.h>
 
 // D1 -> SCL
 // D2 -> SDA

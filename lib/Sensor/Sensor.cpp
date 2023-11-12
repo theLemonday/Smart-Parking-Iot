@@ -62,7 +62,7 @@ CarDetectionSensor::CarDetectionSensor(const uint8_t digitalPin)
 }
 
 // LOW -> car detected
-CarDetectionSensor::State CarDetectionSensor::NewCarDetected() {
+CarDetectionSensor::State CarDetectionSensor::IsNewCarDetected() {
     if (digitalRead(_digitalPin) == HIGH) {
         if (prevState != SAME_NO_CAR) {
             prevState = SAME_NO_CAR;
@@ -84,7 +84,7 @@ StaticJsonDocument<JSON_OBJECT_SIZE(1)> carDectionData;
 void CarDetectionSensorCallbackHandler(MQTTClient& client,
                                        const char* const topic,
                                        CarDetectionSensor& carSensor) {
-    auto carDetectionState = carSensor.NewCarDetected();
+    auto carDetectionState = carSensor.IsNewCarDetected();
 
     switch (carDetectionState) {
         case CarDetectionSensor::State::NO_CAR:

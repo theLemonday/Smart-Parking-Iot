@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <Constant.h>
+#include <Utils.h>
 #include <Sensor.h>
 #include <WiFi.h>
 #include <ArduinoJson.h>
@@ -10,9 +10,10 @@
 #include <CommonComponents.h>
 #include <OLED.h>
 
+const char clientId[] = "Smart-parking-IoT-maingate";
+
 const char OLEDSubTop[] = "smart-parking/gate/OLED";
 const char GateBarrierSubTop[] = "smart-parking/gate/barrier";
-const char clientId[] = "Smart-parking-IoT-maingate";
 
 const char IRGoInDirection[] = "smart-parking/gate/IR/in";
 CarDetectionSensor carGoesInDetectionSensor(D4);
