@@ -1,11 +1,9 @@
-#include "Sensor.h"
+#include <Sensor.h>
 
-Sensor::Sensor(
-    const uint8_t analogPin,
-    const uint8_t* digitalPin,
-    const uint8_t* powerPin) : _analogPin(analogPin),
-                               _digitalPin(digitalPin),
-                               _powerPin(powerPin) {
+Sensor::Sensor(const uint8_t analogPin,
+               const uint8_t* digitalPin,
+               const uint8_t* powerPin)
+    : _analogPin(analogPin), _digitalPin(digitalPin), _powerPin(powerPin) {
     pinMode(analogPin, INPUT);
 
     if (_digitalPin != nullptr) {
@@ -20,9 +18,13 @@ Sensor::Sensor(
 
 Sensor::Sensor(const uint8_t analogPin) : Sensor(analogPin, nullptr, nullptr) {}
 
-Sensor::Sensor(const uint8_t analogPin, const uint8_t& digitalPin) : Sensor(analogPin, &digitalPin, nullptr) {}
+Sensor::Sensor(const uint8_t analogPin, const uint8_t& digitalPin)
+    : Sensor(analogPin, &digitalPin, nullptr) {}
 
-Sensor::Sensor(const uint8_t analogPin, const uint8_t& digitalPin, const uint8_t& powerPin) : Sensor(analogPin, &digitalPin, &powerPin) {}
+Sensor::Sensor(const uint8_t analogPin,
+               const uint8_t& digitalPin,
+               const uint8_t& powerPin)
+    : Sensor(analogPin, &digitalPin, &powerPin) {}
 
 void Sensor::on() {
     if (_powerPin == nullptr) {
@@ -42,9 +44,7 @@ void Sensor::off() {
     digitalWrite(*_powerPin, LOW);
 }
 
-int Sensor::read() {
-    return analogRead(_analogPin);
-}
+int Sensor::read() { return analogRead(_analogPin); }
 
 bool Sensor::isAboveThreshold() {
     if (_digitalPin == nullptr) {
@@ -55,28 +55,46 @@ bool Sensor::isAboveThreshold() {
     return digitalRead(*_digitalPin) == HIGH;
 }
 
-MoistureSensor::MoistureSensor(const uint8_t analogPin) : Sensor(analogPin) {}
-MoistureSensor::MoistureSensor(const uint8_t analogPin, const uint8_t& digitalPin) : Sensor(analogPin, digitalPin) {}
-MoistureSensor::MoistureSensor(const uint8_t analogPin, const uint8_t& digitalPin, const uint8_t& powerPin) : Sensor(analogPin, digitalPin, powerPin) {}
-
-int MoistureSensor::valueToMoisturePercent(int value) {
-    int percent = map((long)value, 0, 1023, 0, 100);
-    percent = 100 - percent;
-    return percent;
-}
-
-int MoistureSensor::readMoisturePercentage() {
-    return valueToMoisturePercent(this->read());
-}
-
-CarDetectionSensor::CarDetectionSensor(const uint8_t digitalPin) : _digitalPin(digitalPin) {
+CarDetectionSensor::CarDetectionSensor(const uint8_t digitalPin)
+    : _digitalPin(digitalPin) {
+    prevState = SAME_NO_CAR;
     pinMode(_digitalPin, INPUT);
 }
 
-bool CarDetectionSensor::isCarDetected() {
+// LOW -> car detected
+CarDetectionSensor::State CarDetectionSensor::NewCarDetected() {
     if (digitalRead(_digitalPin) == HIGH) {
-        return true;
+        if (prevState != SAME_NO_CAR) {
+            prevState = SAME_NO_CAR;
+            return NO_CAR;
+        }
+
+        return SAME_NO_CAR;
     }
 
-    return false;
+    if (prevState != SAME_NEW_CAR) {
+        prevState = SAME_NEW_CAR;
+        return NEW_CAR;
+    }
+
+    return SAME_NEW_CAR;
+}
+
+StaticJsonDocument<JSON_OBJECT_SIZE(1)> carDectionData;
+void CarDetectionSensorCallbackHandler(MQTTClient& client,
+                                       const char* const topic,
+                                       CarDetectionSensor& carSensor) {
+    auto carDetectionState = carSensor.NewCarDetected();
+
+    switch (carDetectionState) {
+        case CarDetectionSensor::State::NO_CAR:
+            carDectionData["detected"] = "no";
+            client.publish(topic, carDectionData);
+            break;
+
+        case CarDetectionSensor::State::NEW_CAR:
+            carDectionData["detected"] = "yes";
+            client.publish(topic, carDectionData);
+            break;
+    }
 }

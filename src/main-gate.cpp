@@ -1,64 +1,85 @@
-#include <Sensor.h>
 #include <Arduino.h>
 #include <Constant.h>
+#include <Sensor.h>
 #include <WiFi.h>
 #include <ArduinoJson.h>
-#include <OLED.h>
-#include <MessageHandler.h>
-#include <WsClient.h>
 #include <Utils.h>
+#include <Mqtt.h>
+#include <Secret.h>
+#include <WiFiClientSecureBearSSL.h>
+#include <CommonComponents.h>
+#include <OLED.h>
 
+const char OLEDSubTop[] = "smart-parking/gate/OLED";
+const char GateBarrierSubTop[] = "smart-parking/gate/barrier";
+const char clientId[] = "Smart-parking-IoT-maingate";
+
+const char IRGoInDirection[] = "smart-parking/gate/IR/in";
 CarDetectionSensor carGoesInDetectionSensor(D4);
+
+const char IRGoOutDirection[] = "smart-parking/gate/IR/out";
 CarDetectionSensor carGoesOutDetectionSensor(D5);
 
 unsigned long prevMillis = 0;
 unsigned long currentMillis = 0;
 const unsigned long INTERVAL = 100L;
 
-void handleMessage(char payload[], size_t payloadLength) {
-    StaticJsonDocument<JSON_LENGTH> data;
-    bool error = DeserializationData2Json(data, payload, payloadLength);
-    if (error) {
+void callback(char* topic, byte* payload, unsigned int length) {
+    DPRINTF("Message arrived [");
+    DPRINT(topic);
+    DPRINTF("] ");
+    DPRINTLN((char*)payload);
+
+    if (strcmp(topic, OLEDSubTop) == 0) {
+        DPRINTLNF("Run OLED handler");
+        DisplayHandler(payload, length);
         return;
     }
 
-    const char *msgType = data["type"];
-
-    if (strcmp(msgType, "gateServo")) {
-        gateServoHandler(data);
-        return;
-    }
-
-    if (strcmp(msgType, "oled")) {
-        OLEDHandler(data);
+    if (strcmp(topic, GateBarrierSubTop) == 0) {
+        DPRINTLNF("Run barrier handler");
+        barrierHandler(payload, length);
         return;
     }
 }
+
+WiFiClientSecure espClient;
 
 void setup() {
-    setupBaudRate();
+#if defined(DEBUG)
 
-    setupCommonComponents();
-    setupDisplay();
+    SetupBaudRate();
 
-    setupWifi();
-    setupWebSocket(HOST_IP, HOST_PORT, handleMessage);
+#endif  // DEBUG
+
+    SetupCommonComponents();
+    SetupDisplay();
+
+    SetupWifi();
 }
 
-void loop() {
-    if (currentMillis - prevMillis > INTERVAL) {
-        if (carGoesInDetectionSensor.isCarDetected()) {
-            StaticJsonDocument<JSON_OBJECT_SIZE(2)> data;
-            data["type"] = "goInCarPark";
-            data["status"] = "detected";
-            sendJsonDataToServer(data);
-        }
+MQTTClient mqttClient(espClient, clientId, callback);
 
-        if (carGoesOutDetectionSensor.isCarDetected()) {
-            StaticJsonDocument<JSON_OBJECT_SIZE(2)> data;
-            data["type"] = "goOutCarPark";
-            data["status"] = "detected";
-            sendJsonDataToServer(data);
-        }
+StaticJsonDocument<JSON_OBJECT_SIZE(1)> data;
+
+void loop() {
+    if (!mqttClient.connected()) {
+        mqttClient.reconnect();
+        mqttClient.subscribe(GateBarrierSubTop);
+        mqttClient.subscribe(OLEDSubTop);
     }
+    mqttClient.loop();
+
+    currentMillis = millis();
+    if (currentMillis - prevMillis > INTERVAL) {
+        CarDetectionSensorCallbackHandler(
+            mqttClient, IRGoInDirection, carGoesInDetectionSensor);
+
+        CarDetectionSensorCallbackHandler(
+            mqttClient, IRGoOutDirection, carGoesOutDetectionSensor);
+
+        prevMillis = millis();
+    }
+
+    DisplayShow();
 }

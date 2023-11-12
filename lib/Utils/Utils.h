@@ -4,7 +4,8 @@
 #include <Constant.h>
 #include <ArduinoJson.h>
 
-bool DeserializationData2Json(StaticJsonDocument<JSON_LENGTH> data, char payload[], size_t payloadLength);
-String SerializeJSONData2String(StaticJsonDocument<JSON_LENGTH> data);
+void DeserializationData2Json(JsonDocument& data,
+                              byte* payload,
+                              unsigned int length);
 
 #endif  // UTILS_H

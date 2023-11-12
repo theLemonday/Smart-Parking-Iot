@@ -1,16 +1,15 @@
 #if !defined(RFID_H)
 #define RFID_H
 
-#define SS_PIN 4   // D2
-#define RST_PIN 5  // D1
-#include <Arduino.h>
 #include <SPI.h>
+#include <Arduino.h>
 #include <MFRC522.h>
 
-void setupRFID();
+#define SS_PIN D4   // D2
+#define RST_PIN D3  // D1
 
-// String readRFIDCardIfExisted();
+void SetupRFID();
 
-void setNewUID4RFIDCard(byte newUID[4]);
+String readRFIDCardIfExisted();
 
 #endif  // RFID_H

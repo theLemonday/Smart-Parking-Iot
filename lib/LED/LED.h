@@ -7,10 +7,7 @@ class LED {
     const uint8_t _pin;
 
    public:
-    enum State {
-        ON,
-        OFF
-    };
+    enum State { ON, OFF };
 
     LED(uint8_t pin);
 
@@ -19,5 +16,7 @@ class LED {
     void off();
     State getCurrentState();
 };
+
+void LEDCallbackHandler(LED led, byte* payload, unsigned int length);
 
 #endif  // LED_H

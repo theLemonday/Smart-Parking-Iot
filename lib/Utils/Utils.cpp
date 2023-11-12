@@ -1,20 +1,19 @@
 #include <Utils.h>
 
-bool DeserializationData2Json(StaticJsonDocument<JSON_LENGTH> data, char payload[], size_t payloadLength) {
-    DeserializationError error = deserializeJson(data, payload, payloadLength);
+void DeserializationData2Json(JsonDocument& data,
+                              byte* payload,
+                              unsigned int length) {
+    DeserializationError error = deserializeJson(data, payload, length);
+    DPRINTF("Deserized data: ");
+#if defined(DEBUG)
+
+    serializeJsonPretty(data, Serial);
+
+#endif  // DEBUG
+    DPRINTLN();
 
     if (error) {
-        Serial.print(F("deserializeJson() failed: "));
-        Serial.println(error.f_str());
-        return true;
+        DPRINTF("deserializeJson() failed: ");
+        DPRINTLN(error.f_str());
     }
-
-    return false;
-}
-
-String SerializeJSONData2String(StaticJsonDocument<JSON_LENGTH> data) {
-    String payload;
-    serializeJson(data, payload);
-
-    return payload;
 }

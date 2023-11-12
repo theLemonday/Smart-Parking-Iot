@@ -1,29 +1,29 @@
 #include "wifi.h"
-#include "constant.h"
+#include "Constant.h"
+#include <Secret.h>
 
-IPAddress setupWifi() {
+IPAddress SetupWifi() {
     delay(10);
     // We start by connecting to a WiFi network
-    Serial.println();
-    Serial.print("Connecting to: ");
-    Serial.println(SSID);
+    DPRINTF("Connecting to: ");
+    DPRINTLN(SSID);
 
     WiFi.mode(WIFI_STA);
     WiFi.begin(SSID, WIFI_PASSWORD);
 
     while (WiFi.status() != WL_CONNECTED) {
-        Serial.print('.');
         delay(500);
+        DPRINT('.');
     }
 
-    // randomSeed(micros());
+    randomSeed(micros());
 
-    Serial.println("");
-    Serial.println("WiFi connected");
-    Serial.println("IP address: ");
+    DPRINTLN();
+    DPRINTLNF("WiFi connected");
+    DPRINTF("IP address: ");
 
     IPAddress ipAdress = WiFi.localIP();
-    Serial.println(ipAdress);
+    DPRINTLN(ipAdress);
 
     return ipAdress;
 }

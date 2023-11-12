@@ -1,16 +1,35 @@
 #ifndef CONSTANT_H
 #define CONSTANT_H
+
 #include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include <ArduinoJson.h>
-#include <Secret.h>
+#include <avr/pgmspace.h>
+#define DEBUG  // If you comment this line, the DPRINT & DPRINTLN lines are
+               // defined as blank.
+#ifdef DEBUG   // Macros are usually in all capital letters.
 
-const IPAddress HOST_IP(192, 168, 0, 101);
-const uint16_t HOST_PORT = 8080;
+// DPRINT is a macro, debug print
+#define DPRINT(...) Serial.print(__VA_ARGS__)
 
-const int BAUD_RATE = 115200;
-void setupBaudRate();
+// DPRINTLN is a macro, debug print with new line
+#define DPRINTLN(...) Serial.println(__VA_ARGS__)
 
-const auto JSON_LENGTH = JSON_STRING_SIZE(3);
+// DPRINT is a macro, debug print
+#define DPRINTF(...) Serial.print(F(__VA_ARGS__))
+
+// DPRINTLN is a macro, debug print with new line
+#define DPRINTLNF(...) Serial.println(F(__VA_ARGS__))
+
+// #define DPRINT_JSON(...) serializeJsonPretty(doc, Serial);
+#else
+#define DPRINT(...)    // now defines a blank line
+#define DPRINTLN(...)  // now defines a blank line
+#endif
+
+#if defined(DEBUG)
+
+const int BAUD_RATE PROGMEM = 115200;
+void SetupBaudRate();
+
+#endif  // DEBUG
 
 #endif

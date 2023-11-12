@@ -1,10 +1,11 @@
 #if !defined(COMMON_COMPONENTS_H)
 #define COMMON_COMPONENTS_H
 
-void setupCommonComponents();
+#include <Constant.h>
+#include <ArduinoJson.h>
 
-void openGate();
+void SetupCommonComponents();
 
-void closeGate();
+void barrierHandler(byte* payload, unsigned int length);
 
 #endif  // COMMON_COMPONENTS_H

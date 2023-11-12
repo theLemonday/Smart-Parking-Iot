@@ -1,9 +1,7 @@
 #if !defined(SENSOR_H)
 #define SENSOR_H
 
-#include <Arduino.h>
-
-#include <memory>
+#include <Mqtt.h>
 
 class Sensor {
    protected:
@@ -11,15 +9,16 @@ class Sensor {
     const uint8_t* _digitalPin;
     const uint8_t* _powerPin;
 
-    Sensor(
-        const uint8_t _analogPin,
-        const uint8_t* _digitalPin,
-        const uint8_t* _powerPin);
+    Sensor(const uint8_t _analogPin,
+           const uint8_t* _digitalPin,
+           const uint8_t* _powerPin);
 
    public:
     Sensor(const uint8_t analogPin);
     Sensor(const uint8_t analogPin, const uint8_t& digitalPin);
-    Sensor(const uint8_t analogPin, const uint8_t& digitalPin, const uint8_t& powerPin);
+    Sensor(const uint8_t analogPin,
+           const uint8_t& digitalPin,
+           const uint8_t& powerPin);
 
     void on();
     void off();
@@ -27,25 +26,26 @@ class Sensor {
     bool isAboveThreshold();
 };
 
-class MoistureSensor : public Sensor {
-   private:
-    int valueToMoisturePercent(int value);
-
-   public:
-    MoistureSensor(const uint8_t analogPin);
-    MoistureSensor(const uint8_t analogPin, const uint8_t& digitalPin);
-    MoistureSensor(const uint8_t analogPin, const uint8_t& digitalPin, const uint8_t& powerPin);
-    int readMoisturePercentage();
-};
-
 class CarDetectionSensor {
-   private:
-    const uint8_t _digitalPin;
-
    public:
+    enum State {
+        NO_CAR,
+        SAME_NO_CAR,
+        NEW_CAR,
+        SAME_NEW_CAR,
+    };
+
     CarDetectionSensor(const uint8_t digitalPin);
 
-    bool isCarDetected();
+    State NewCarDetected();
+
+   private:
+    const uint8_t _digitalPin;
+    State prevState;
 };
+
+void CarDetectionSensorCallbackHandler(MQTTClient& client,
+                                       const char* const topic,
+                                       CarDetectionSensor& carSensor);
 
 #endif  // SENSOR_H
