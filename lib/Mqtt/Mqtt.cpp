@@ -1,9 +1,6 @@
 #include "Mqtt.h"
 #include <Secret.h>
 
-#define BUFFER_SIZE 256
-char tempbuffer[BUFFER_SIZE];
-
 MQTTClient::MQTTClient(WiFiClientSecure& espClient,
                        const char* const clientId,
                        MQTT_CALLBACK_SIGNATURE)
@@ -31,6 +28,9 @@ void MQTTClient::reconnect() {
     }
 }
 
+#define BUFFER_SIZE 256
+char tempbuffer[BUFFER_SIZE];
+
 void MQTTClient::publish(const char* topic, const JsonDocument& data) {
 #if defined(DEBUG)
 
@@ -39,6 +39,6 @@ void MQTTClient::publish(const char* topic, const JsonDocument& data) {
 
 #endif  // DEBUG
 
-    size_t length = serializeJson(data, tempbuffer);
-    PubSubClient::publish(topic, tempbuffer, length);
+    serializeJson(data, tempbuffer);
+    PubSubClient::publish(topic, tempbuffer);
 }

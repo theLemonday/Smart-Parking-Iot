@@ -11,8 +11,8 @@ LED greenLED(D2);
 const char redLEDSubTop[] = "smart-parking/gate/redLED";
 LED redLED(D1);
 
-const char RFIDOutputSubTop[] = "smart-parking/gate/RFID/output";
-const char RFIDInputSubTop[] = "smart-parking/gate/RFID/input";
+const char RFIDPubTop[] = "smart-parking/gate/RFID/out";
+const char RFIDSubTop[] = "smart-parking/gate/RFID/in";
 
 const char clientId[] = "Smart-parking-IoT-RFID";
 
@@ -53,6 +53,7 @@ void setup() {
 }
 
 MQTTClient mqttClient(espClient, clientId, callback);
+String currentUid = "";
 
 void loop() {
     if (!mqttClient.connected()) {
@@ -66,12 +67,13 @@ void loop() {
 
     if (currentMillis - prevMillis > INTERVAL) {
         auto uid = readRFIDCardIfExisted();
-        if (uid == "") {
+        if (uid == "" || uid == currentUid) {
             return;
         }
+        currentUid = uid;
 
         StaticJsonDocument<JSON_OBJECT_SIZE(1)> data;
         data["uid"] = uid.c_str();
-        mqttClient.publish(RFIDOutputSubTop, data);
+        mqttClient.publish(RFIDPubTop, data);
     }
 }

@@ -88,12 +88,12 @@ void CarDetectionSensorCallbackHandler(MQTTClient& client,
 
     switch (carDetectionState) {
         case CarDetectionSensor::State::NO_CAR:
-            carDectionData["detected"] = "no";
+            carDectionData["detected"] = false;
             client.publish(topic, carDectionData);
             break;
 
         case CarDetectionSensor::State::NEW_CAR:
-            carDectionData["detected"] = "yes";
+            carDectionData["detected"] = true;
             client.publish(topic, carDectionData);
             break;
     }
